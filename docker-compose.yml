@@ -1,0 +1,171 @@
+services:
+
+  # ── Infrastructure ──────────────────────────────────────────────────────────
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+    networks:
+      - internal
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - internal
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+    networks:
+      - internal
+
+  # ── Databases ────────────────────────────────────────────────────────────────
+
+  user-db:
+    image: postgres:16
+    container_name: user-db
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "0000"
+    ports:
+      - "5433:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  wallet-db:
+    image: postgres:16
+    container_name: wallet-db
+    environment:
+      POSTGRES_DB: wallet_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "0000"
+    ports:
+      - "5434:5432"
+    volumes:
+      - wallet-db-data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  payment-db:
+    image: postgres:16
+    container_name: payment-db
+    environment:
+      POSTGRES_DB: payment_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "0000"
+    ports:
+      - "5435:5432"
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  # ── Discovery ────────────────────────────────────────────────────────────────
+
+  discovery-service:
+    build:
+      context: ./discovery-service
+    container_name: discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - internal
+
+  # ── Application Services ─────────────────────────────────────────────────────
+
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    depends_on:
+      - user-db
+      - keycloak
+      - discovery-service
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - internal
+
+  wallet-service:
+    build:
+      context: ./wallet-service
+    container_name: wallet-service
+    depends_on:
+      - wallet-db
+      - keycloak
+      - discovery-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - internal
+
+  payment-service:
+    build:
+      context: ./payment-service
+    container_name: payment-service
+    depends_on:
+      - payment-db
+      - keycloak
+      - discovery-service
+      - kafka
+      - wallet-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - internal
+
+  # ── Gateway ───────────────────────────────────────────────────────────────────
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    depends_on:
+      - discovery-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8085:8085"
+    networks:
+      - internal
+
+# ── Networks ──────────────────────────────────────────────────────────────────
+
+networks:
+  internal:
+    driver: bridge
+
+# ── Volumes ───────────────────────────────────────────────────────────────────
+
+volumes:
+  user-db-data:
+  wallet-db-data:
+  payment-db-data:
+  keycloak-data:

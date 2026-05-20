@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.5</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.digitalwalletrefactor.archieCode</groupId>
+  <artifactId>digital-wallet</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Archetype - digital-wallet</name>
+  <url>http://maven.apache.org</url>
+  <modules>
+    <module>user-service</module>
+    <module>discovery-service</module>
+      <module>wallet-service</module>
+      <module>payment-service</module>
+      <module>api-gateway</module>
+  </modules>
+
+  <properties>
+    <spring-cloud.version>2023.0.1</spring-cloud.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Locks keycloak version for ALL services, no version needed in children -->
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-admin-client</artifactId>
+        <version>24.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- ONLY things truly every service needs -->
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+  </dependencies>
+
+
+</project>

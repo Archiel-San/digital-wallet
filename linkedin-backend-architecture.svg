@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Digital Wallet Architecture</title>
+  <desc id="desc">A stylized architecture diagram showing a client calling an API gateway, with Dockerized backend services, Keycloak, Eureka, Kafka, and PostgreSQL databases inside an Amazon EKS deployment boundary.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#101820"/>
+      <stop offset="50%" stop-color="#152a31"/>
+      <stop offset="100%" stop-color="#22343b"/>
+    </linearGradient>
+    <linearGradient id="awsPanel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#182b32"/>
+      <stop offset="100%" stop-color="#263b43"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00b8a9"/>
+      <stop offset="100%" stop-color="#f6c85f"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#9fd7d2"/>
+    </marker>
+    <style>
+      .panel { fill: url(#awsPanel); stroke: #ff9900; stroke-width: 3; rx: 12; filter: url(#shadow); }
+      .cluster { fill: #102126; stroke: #4e747c; stroke-width: 2; stroke-dasharray: 10 8; rx: 10; }
+      .box { fill: #20363d; stroke: #35555d; stroke-width: 2; rx: 8; filter: url(#shadow); }
+      .infra { fill: #243e47; stroke: #6ed5c7; stroke-width: 2; rx: 8; filter: url(#shadow); }
+      .db { fill: #273f48; stroke: #6ed5c7; stroke-width: 2; filter: url(#shadow); }
+      .chip { fill: url(#accent); rx: 6; }
+      .label { font: 700 19px Arial, sans-serif; fill: #f9fbfb; letter-spacing: 0; }
+      .small { font: 500 13px Arial, sans-serif; fill: #c9d8d6; letter-spacing: 0; }
+      .tiny { font: 700 12px Arial, sans-serif; fill: #102126; letter-spacing: 0; }
+      .boundary { font: 800 22px Arial, sans-serif; fill: #f8fbfb; letter-spacing: 0; }
+      .subtle { font: 600 14px Arial, sans-serif; fill: #f6c85f; letter-spacing: 0; }
+      .line { fill: none; stroke: #9fd7d2; stroke-width: 3; marker-end: url(#arrow); opacity: 0.92; }
+      .softLine { fill: none; stroke: #83bcb7; stroke-width: 2.4; marker-end: url(#arrow); opacity: 0.72; }
+      .eventLine { fill: none; stroke: #f6c85f; stroke-width: 3; stroke-dasharray: 9 8; marker-end: url(#arrow); opacity: 0.9; }
+      .docker { fill: #0db7ed; }
+      .aws { fill: #ff9900; }
+      .lock { fill: none; stroke: #f6c85f; stroke-width: 2.4; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <path d="M0 611 C235 575 357 646 569 608 C788 568 930 594 1200 544 V675 H0 Z" fill="#0c1518" opacity="0.52"/>
+  <circle cx="1035" cy="94" r="145" fill="#00b8a9" opacity="0.07"/>
+  <circle cx="128" cy="555" r="170" fill="#f6c85f" opacity="0.06"/>
+
+  <!-- Client outside the cloud boundary -->
+  <g transform="translate(48 272)">
+    <circle cx="34" cy="16" r="14" fill="none" stroke="#d7e6e3" stroke-width="3"/>
+    <path d="M34 31 V74 M12 47 H56 M34 74 L12 106 M34 74 L58 106" fill="none" stroke="#d7e6e3" stroke-width="3" stroke-linecap="round"/>
+    <text x="2" y="136" class="label">Client</text>
+    <text x="-3" y="157" class="small">mobile / API</text>
+  </g>
+
+  <!-- AWS / EKS deployment boundary -->
+  <rect x="178" y="54" width="964" height="555" class="panel"/>
+  <text x="204" y="88" class="boundary">AWS Cloud</text>
+  <path class="aws" d="M1045 88c27 13 64 11 87-7 4-4 0-9-5-6-23 14-51 18-80 8-5-2-8 4-2 5z"/>
+
+  <rect x="214" y="110" width="888" height="392" class="cluster"/>
+  <text x="238" y="143" class="boundary">Amazon EKS Cluster</text>
+  <text x="238" y="165" class="small">Dockerized services</text>
+
+  <!-- API entry -->
+  <rect x="252" y="238" width="166" height="86" class="box"/>
+  <rect x="270" y="258" width="42" height="22" class="docker" rx="4"/>
+  <text x="277" y="273" class="tiny">8085</text>
+  <text x="327" y="270" class="label">API Gateway</text>
+  <text x="327" y="296" class="small">routes + JWT</text>
+
+  <!-- Identity and discovery -->
+  <rect x="472" y="146" width="168" height="86" class="infra"/>
+  <path class="lock" d="M500 185 v-12 a10 10 0 0 1 20 0 v12 M494 185 h32 v27 h-32 z"/>
+  <text x="542" y="181" class="label">Keycloak</text>
+  <text x="542" y="206" class="small">realm / roles</text>
+
+  <rect x="238" y="412" width="168" height="72" class="infra"/>
+  <text x="281" y="441" class="label">Eureka</text>
+  <text x="268" y="467" class="small">service registry</text>
+
+  <!-- Core services -->
+  <rect x="704" y="130" width="160" height="86" class="box"/>
+  <rect x="724" y="150" width="34" height="22" class="docker" rx="4"/>
+  <text x="776" y="164" class="label">User Service</text>
+  <text x="776" y="190" class="small">register / me</text>
+
+  <rect x="704" y="268" width="160" height="86" class="box"/>
+  <rect x="724" y="288" width="34" height="22" class="docker" rx="4"/>
+  <text x="772" y="302" class="label">Wallet Service</text>
+  <text x="772" y="328" class="small">balance / ledger</text>
+
+  <rect x="704" y="406" width="174" height="86" class="box"/>
+  <rect x="724" y="426" width="34" height="22" class="docker" rx="4"/>
+  <text x="772" y="440" class="label">Payment Service</text>
+  <text x="772" y="466" class="small">transfers</text>
+
+  <!-- Kafka -->
+  <rect x="928" y="268" width="132" height="86" class="infra"/>
+  <circle cx="956" cy="294" r="7" fill="#f6c85f"/>
+  <circle cx="983" cy="311" r="7" fill="#f6c85f"/>
+  <circle cx="956" cy="328" r="7" fill="#f6c85f"/>
+  <path d="M956 294 L983 311 L956 328 M956 294 V328" fill="none" stroke="#f6c85f" stroke-width="3"/>
+  <text x="1002" y="306" class="label">Kafka</text>
+  <text x="1002" y="331" class="small">events</text>
+
+  <!-- Databases inside deployment boundary for local/dockerized architecture -->
+  <g>
+    <ellipse cx="779" cy="575" rx="58" ry="17" class="db"/>
+    <rect x="721" y="540" width="116" height="35" class="db"/>
+    <ellipse cx="779" cy="540" rx="58" ry="17" class="db"/>
+    <text x="746" y="559" class="small">User DB</text>
+  </g>
+
+  <g>
+    <ellipse cx="930" cy="575" rx="58" ry="17" class="db"/>
+    <rect x="872" y="540" width="116" height="35" class="db"/>
+    <ellipse cx="930" cy="540" rx="58" ry="17" class="db"/>
+    <text x="892" y="559" class="small">Wallet DB</text>
+  </g>
+
+  <g>
+    <ellipse cx="1078" cy="575" rx="58" ry="17" class="db"/>
+    <rect x="1020" y="540" width="116" height="35" class="db"/>
+    <ellipse cx="1078" cy="540" rx="58" ry="17" class="db"/>
+    <text x="1035" y="559" class="small">Payment DB</text>
+  </g>
+
+  <!-- Data flow -->
+  <path d="M115 326 H248" class="line"/>
+  <path d="M418 264 C456 246 464 215 471 194" class="softLine"/>
+  <path d="M418 268 C516 156 615 151 700 161" class="line"/>
+  <path d="M418 285 C534 285 600 300 700 304" class="line"/>
+  <path d="M418 303 C545 406 625 434 700 444" class="line"/>
+  <path d="M640 190 C668 184 680 176 700 169" class="softLine"/>
+  <path d="M864 306 H924" class="eventLine"/>
+  <path d="M878 444 C910 424 928 382 950 354" class="eventLine"/>
+  <path d="M779 216 V530" class="softLine"/>
+  <path d="M784 354 C826 418 884 464 920 530" class="softLine"/>
+  <path d="M791 492 C859 515 970 516 1067 530" class="softLine"/>
+
+  <!-- Supporting note -->
+  <rect x="214" y="528" width="230" height="58" fill="#102126" stroke="#35555d" stroke-width="1.5" rx="8"/>
+  <text x="236" y="552" class="label">Current: Docker Compose</text>
+  <text x="236" y="574" class="small">EKS deployment for Production</text>
+</svg>
