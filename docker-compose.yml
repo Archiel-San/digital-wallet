@@ -5,14 +5,15 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.1
     container_name: keycloak
-    command: start-dev
+    command: start-dev --import-realm        # ← auto-imports realm-export.json on first boot
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+      - keycloak-data:/opt/keycloak/data     # ← persists realm after first import
     ports:
       - "8080:8080"
-    volumes:
-      - keycloak-data:/opt/keycloak/data
     networks:
       - internal
 
@@ -94,6 +95,8 @@ services:
     container_name: discovery-service
     ports:
       - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       - internal
 
@@ -110,6 +113,21 @@ services:
       - kafka
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      # DB
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/user_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "0000"
+      # Keycloak JWT validation
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/Digital-Wallet
+      # Keycloak Admin Client — fully exposed for demo
+      KC_SERVER_URL: http://keycloak:8080
+      KC_REALM: Digital-Wallet
+      KC_CLIENT_ID: wallet-mobile-app
+      KC_CLIENT_SECRET: digital-wallet-demo-secret
+      # Kafka
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      # Eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
     networks:
       - internal
 
@@ -123,6 +141,11 @@ services:
       - discovery-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://wallet-db:5432/wallet_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "0000"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/Digital-Wallet
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
     networks:
       - internal
 
@@ -138,6 +161,13 @@ services:
       - wallet-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://payment-db:5432/payment_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "0000"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/Digital-Wallet
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      WALLET_SERVICE_URL: http://wallet-service:8082
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
     networks:
       - internal
 
@@ -151,6 +181,8 @@ services:
       - discovery-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/Digital-Wallet
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
     ports:
       - "8085:8085"
     networks:
