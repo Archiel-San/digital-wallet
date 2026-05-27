@@ -20,11 +20,8 @@ public class SecurityConfig {
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        // Public — login and register never need a token
                         .pathMatchers("/api/auth/**").permitAll()
-                        // Internal — never exposed to outside world
                         .pathMatchers("/api/internal/**").denyAll()
-                        // Everything else needs a valid JWT
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
