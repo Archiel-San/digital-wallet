@@ -2,6 +2,7 @@ package com.digitalWallet.user_service.controller;
 
 import com.digitalWallet.user_service.domain.User;
 import com.digitalWallet.user_service.dtos.responses.UserResponse;
+import com.digitalWallet.user_service.service.UserService;
 import com.digitalWallet.user_service.service.UserSyncService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,8 @@ public class UserController {
 
     @Autowired
     private UserSyncService userSyncService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(
@@ -44,5 +48,13 @@ public class UserController {
         }
 
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing JWT principal");
+    }
+
+    @GetMapping("/by-email")
+    public ResponseEntity<UserResponse> findByEmail(
+            @RequestParam String email,
+            @AuthenticationPrincipal Jwt jwt
+    ){
+        return ResponseEntity.ok(userService.findByEmail(email));
     }
 }

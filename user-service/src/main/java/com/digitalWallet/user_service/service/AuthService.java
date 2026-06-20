@@ -135,11 +135,6 @@ public class AuthService {
         }
     }
 
-
-    public LoginResponse refresh2(RefreshTokenRequest request){
-        return null;
-    }
-
     public LoginResponse refresh(RefreshTokenRequest request) {
         try {
             // Use RestTemplate — simplest and most reliable for form posts

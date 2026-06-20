@@ -149,6 +149,7 @@ public class WalletService {
                         HttpStatus.NOT_FOUND, "Wallet not found"));
     }
 
+    // Nao possuo field de salvar o saldo, mas sim as ultimas transacoes e ve-se o balance after
     private BigDecimal getCurrentBalance(Wallet wallet) {
         return walletLedgerRepository
                 .findTopByWalletOrderByCreatedAtDesc(wallet)
