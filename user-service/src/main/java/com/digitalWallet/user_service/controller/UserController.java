@@ -50,6 +50,7 @@ public class UserController {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing JWT principal");
     }
 
+    //Usei para transferencias so
     @GetMapping("/by-email")
     public ResponseEntity<UserResponse> findByEmail(
             @RequestParam String email,
